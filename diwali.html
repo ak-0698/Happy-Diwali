@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Happy Diwali</title>
+<style>
+  :root{
+    --red:#e50914; --red-dark:#b00710; --text:#fff; --muted:#b3b3b3; --gold:#ffd166;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; overflow:hidden; color:var(--text);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+    background:radial-gradient(1000px 600px at 70% -20%, #2a2a2a 0%, #141414 40%, #000 70%);
+  }
+
+  /* Top bar — Netflix style */
+  .nav{
+    position:fixed; inset:0 0 auto 0; height:64px; z-index:10;
+    display:flex; align-items:center; gap:16px; padding:0 24px;
+    background:linear-gradient(180deg, rgba(0,0,0,.75), rgba(0,0,0,0));
+    border-bottom:1px solid rgba(255,255,255,.08); backdrop-filter:blur(4px);
+  }
+  .brand{
+    font-weight:900; font-size:28px; letter-spacing:0.6px; line-height:1;
+    text-transform:uppercase; /* Netflix caps */
+  }
+  /* Red "N" vibe */
+  .brand .n{
+    color:var(--red); font-weight:900; display:inline-block; margin-right:1px;
+    text-shadow:0 2px 14px rgba(229,9,20,.35);
+  }
+  .brand .rest{color:#fff}
+  .tag{
+    font-size:12px; color:var(--muted); border:1px solid rgba(255,255,255,.15);
+    padding:4px 10px; border-radius:999px;
+    background:rgba(0,0,0,.25);
+  }
+
+  /* Gate */
+  .gate{
+    position:absolute; inset:0; z-index:9; display:grid; place-items:center; padding:24px;
+    background:
+      radial-gradient(1000px 600px at 30% -20%, rgba(229,9,20,.15), transparent 60%),
+      linear-gradient(180deg, rgba(0,0,0,.75), rgba(0,0,0,.6) 20%, rgba(0,0,0,.9));
+  }
+  .card{
+    width:min(640px,94vw); background:rgba(20,20,20,.95);
+    border:1px solid rgba(255,255,255,.1); border-radius:18px; padding:28px; text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.6);
+  }
+  .title{font-size:28px; font-weight:800}
+  .subtitle{color:var(--muted)}
+  .row{display:flex; gap:12px; margin-top:10px}
+  input[type=text]{flex:1; padding:14px 16px; border-radius:12px; border:1px solid rgba(255,255,255,.18); background:#0f0f0f; color:#fff; font-size:16px}
+  .btn{background:var(--red); border:none; color:#fff; font-weight:700; padding:14px 18px; border-radius:12px; cursor:pointer; font-size:16px}
+  .btn:hover{background:var(--red-dark)}
+
+  /* Stage */
+  .stage{position:absolute; inset:0; display:grid; place-items:center; padding:24px; opacity:0; pointer-events:none; transition:opacity .5s ease}
+  .stage.show{opacity:1; pointer-events:auto}
+  .hero{text-align:center; z-index:2; max-width:1100px}
+  .headline{font-size:clamp(28px,6vw,72px); font-weight:900; line-height:1.05; text-shadow:0 6px 40px rgba(229,9,20,.25)}
+  .headline .name{color:#ffd166; text-shadow:0 0 10px rgba(255,209,102,.45),0 0 30px rgba(255,209,102,.2)}
+  .sub{margin-top:10px; color:var(--muted); font-size:clamp(14px,2.2vw,18px)}
+  .quote{margin-top:8px; font-style:italic; color:#e6e6e6}
+
+  /* Icon row (NO BOXES) */
+  .crackers{
+    margin-top:28px; display:flex; gap:28px; justify-content:center; align-items:center; flex-wrap:wrap;
+  }
+  .cracker{
+    background:transparent; border:none; padding:0; cursor:pointer; position:relative;
+    width:96px; height:96px; display:grid; place-items:center;
+    transition:transform .12s ease, filter .2s ease;
+  }
+  .cracker:hover{transform:scale(1.06); filter:brightness(1.08)}
+  .cracker:focus-visible{outline:2px solid rgba(255,255,255,.45); border-radius:14px}
+  /* tiny moving fuse for vibe */
+  .fuse{
+    position:absolute; top:-12px; left:calc(50% - 1px); width:2px; height:22px; border-radius:2px;
+    background:linear-gradient(#ffd166,#ff9a1a); box-shadow:0 0 8px #ffd166;
+    animation:fuse 1.2s linear infinite;
+  }
+  @keyframes fuse{0%{transform:translateY(0); opacity:0}10%{opacity:1}100%{transform:translateY(110px); opacity:0}}
+
+  #fireworks{position:absolute; inset:0; z-index:1; pointer-events:none; filter:drop-shadow(0 0 6px rgba(255,255,255,.8))}
+
+  .footer{position:fixed; left:0; right:0; bottom:10px; text-align:center; z-index:3; color:#ddd; font-size:14px}
+  .footer strong{color:var(--red)}
+  .diya{display:inline-block; width:16px; height:16px; margin:0 6px; border-bottom-left-radius:50% 70%; border-bottom-right-radius:50% 70%; background:radial-gradient(12px 10px at 50% 30%, #ffb703 0%, #fb8500 60%, #7a3e00 100%); position:relative; transform:translateY(3px); box-shadow:0 2px 10px rgba(255,183,3,.4)}
+  .diya::after{content:""; position:absolute; top:-10px; left:50%; transform:translateX(-50%); width:8px; height:12px; border-radius:50%; background:radial-gradient(6px 8px at 50% 40%, #fff 0%, #ffe066 30%, #ff7b00 70%, transparent 100%); animation:flicker .9s infinite alternate}
+  @keyframes flicker{from{transform:translateX(-50%) scale(1)} to{transform:translateX(-50%) scale(1.15)}}
+
+  ::-webkit-scrollbar{width:0;height:0}
+</style>
+</head>
+<body>
+  <div class="nav">
+    <!-- Netflix-style name: first letter red (like N), rest white caps -->
+    <div class="brand" id="brand">
+      <span class="n">H</span><span class="rest">appy Diwali</span>
+    </div>
+    <div class="tag">Fireworks • Greetings</div>
+  </div>
+
+  <!-- NAME GATE -->
+  <section class="gate" id="gate">
+    <div class="card">
+      <div class="title">🎇 Wellcome To Myworld </div>
+      <div class="subtitle">Tell me your name to start the show.</div>
+      <div class="row">
+        <input id="nameInput" type="text" placeholder="Enter your name..." maxlength="40"/>
+        <button class="btn" id="startBtn">Start</button>
+      </div>
+      <div class="subtitle" style="font-size:12px;margin-top:8px;">Tip: Press Enter after typing your name.</div>
+    </div>
+  </section>
+
+  <!-- MAIN STAGE -->
+  <section class="stage" id="stage">
+    <canvas id="fireworks"></canvas>
+    <div class="hero">
+      <div class="headline" id="headline">Happy Diwali, <span class="name">Friend</span> &amp; your family! ✨</div>
+      <div class="sub">Tap a cracker icon to change the fireworks style.</div>
+      <div class="quote" id="quote">“May your life burst with color and joy.”</div>
+
+      <!-- ICONS ONLY -->
+      <div class="crackers" id="crackers">
+        <!-- Peony -->
+        <button class="cracker" data-mode="peony" aria-label="Peony">
+          <span class="fuse"></span>
+          <svg width="84" height="84" viewBox="0 0 64 64" aria-hidden="true">
+            <defs><radialGradient id="g1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffd166"/><stop offset="60%" stop-color="#ff7b00"/><stop offset="100%" stop-color="#e50914"/></radialGradient></defs>
+            <circle cx="32" cy="32" r="5" fill="url(#g1)"/>
+            <g stroke="#ffd166" stroke-width="3" stroke-linecap="round" opacity=".9">
+              <line x1="32" y1="6" x2="32" y2="16"/><line x1="32" y1="48" x2="32" y2="58"/>
+              <line x1="6" y1="32" x2="16" y2="32"/><line x1="48" y1="32" x2="58" y2="32"/>
+              <line x1="12" y1="12" x2="20" y2="20"/><line x1="52" y1="12" x2="44" y2="20"/>
+              <line x1="12" y1="52" x2="20" y2="44"/><line x1="52" y1="52" x2="44" y2="44"/>
+            </g>
+          </svg>
+        </button>
+
+        <!-- Ring -->
+        <button class="cracker" data-mode="ring" aria-label="Ring">
+          <span class="fuse"></span>
+          <svg width="84" height="84" viewBox="0 0 64 64" aria-hidden="true">
+            <circle cx="32" cy="32" r="22" fill="none" stroke="#22d3ee" stroke-width="5"/>
+            <circle cx="32" cy="32" r="9" fill="#22d3ee"/>
+          </svg>
+        </button>
+
+        <!-- Comet -->
+        <button class="cracker" data-mode="comet" aria-label="Comet">
+          <span class="fuse"></span>
+          <svg width="84" height="84" viewBox="0 0 64 64" aria-hidden="true">
+            <defs><linearGradient id="cg" x1="0" x2="1"><stop offset="0" stop-color="#a259ff"/><stop offset="1" stop-color="#ff4d6d"/></linearGradient></defs>
+            <circle cx="52" cy="20" r="9" fill="url(#cg)"/>
+            <path d="M12 50 C26 42, 38 34, 52 20" stroke="url(#cg)" stroke-width="7" fill="none" stroke-linecap="round"/>
+          </svg>
+        </button>
+
+        <!-- Fountain -->
+        <button class="cracker" data-mode="fountain" aria-label="Fountain">
+          <span class="fuse"></span>
+          <svg width="84" height="84" viewBox="0 0 64 64" aria-hidden="true">
+            <rect x="26" y="44" width="12" height="14" rx="3" fill="#444"/>
+            <path d="M32 44 q-12 -16 -22 -24" stroke="#ffd166" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M32 44 q12 -16 22 -24" stroke="#ffd166" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M32 44 q0 -18 0 -28" stroke="#ffd166" stroke-width="4" fill="none" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">🪔<span class="diya"></span> With love — <strong>By Avinash</strong> <span class="diya"></span>🪔</div>
+
+<script>
+/* ===== Elements ===== */
+const gate = document.getElementById('gate');
+const stage = document.getElementById('stage');
+const input = document.getElementById('nameInput');
+const startBtn = document.getElementById('startBtn');
+const headline = document.getElementById('headline');
+const brand = document.getElementById('brand');
+const quoteEl = document.getElementById('quote');
+const crackers = document.getElementById('crackers');
+
+const QUOTE_POOL = [
+  "May your life burst with color and joy.",
+  "Circle of light—endless blessings to you and yours.",
+  "Chase your dreams like comets—bright and unstoppable.",
+  "Let abundance flow like a fountain of sparks.",
+  "May your path glow with happiness, peace, and prosperity.",
+  "Light up every corner of your heart with love and laughter.",
+  "May this Diwali sparkle brighter than ever before.",
+  "Let kindness, joy, and success shine like fireworks tonight!",
+  "Happiness is homemade—may your home be filled with it.",
+  "Celebrate life, love, and light—every single day!"
+];
+
+function randomQuote() {
+  return QUOTE_POOL[Math.floor(Math.random() * QUOTE_POOL.length)];
+}
+
+function setBrandNetflixName(name){
+  const trimmed = (name||'').trim();
+  const fallback = 'Guest';
+  const word = trimmed.length ? trimmed : fallback;
+  const first = word.charAt(0).toUpperCase();
+  const rest  = word.slice(1).toUpperCase();
+  brand.innerHTML = `<span class="n">${first}</span><span class="rest">${rest}</span>`;
+}
+
+function startShow(){
+  const raw = (input.value || '');
+  const safe = raw.replace(/[<>]/g,'');
+  const name = safe || 'Friend';
+  headline.innerHTML = `Happy Diwali, <span class="name">${name}</span> &amp; your family! ✨`;
+  setBrandNetflixName(name);
+  gate.style.display = 'none';
+  stage.classList.add('show');
+  quoteEl.textContent = "“" + randomQuote() + "”";
+  setMode('peony');
+  burst(3);
+}
+startBtn.addEventListener('click', startShow);
+input.addEventListener('keydown', e=>{ if(e.key==='Enter') startShow(); });
+
+/* ===== Fireworks Engine ===== */
+const canvas = document.getElementById('fireworks');
+const ctx = canvas.getContext('2d');
+let W,H; const DPR = Math.min(2, window.devicePixelRatio||1);
+function resize(){
+  W = canvas.width  = Math.floor(window.innerWidth * DPR);
+  H = canvas.height = Math.floor(window.innerHeight * DPR);
+  canvas.style.width  = window.innerWidth + 'px';
+  canvas.style.height = window.innerHeight + 'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', resize); resize();
+
+function rand(min,max){return Math.random()*(max-min)+min}
+function pick(a){return a[(Math.random()*a.length)|0]}
+function palette(){return pick([[255,209,102],[229,9,20],[162,89,255],[255,77,109],[34,211,238],[255,136,0]])}
+
+let particles=[], rockets=[];
+let mode='peony';
+let fountainEmitters=[];
+
+function setMode(m){
+  mode=m;
+  quoteEl.textContent = "“" + randomQuote() + "”"; // <-- changes quote every click
+  document.querySelectorAll('.cracker').forEach(btn=>{
+    btn.style.filter = (btn.dataset.mode===m)
+      ? 'brightness(1.2) drop-shadow(0 0 8px rgba(255,255,255,.25))'
+      : 'none';
+  });
+  fountainEmitters=[];
+  if(mode==='fountain'){
+    const count=6, margin=80;
+    for(let i=0;i<count;i++){
+      const x = margin + i*((window.innerWidth-2*margin)/(count-1));
+      fountainEmitters.push({x, y: window.innerHeight-10});
+    }
+  }
+}
+
+crackers.addEventListener('click', e=>{
+  const c = e.target.closest('.cracker'); if(!c) return;
+  setMode(c.dataset.mode);
+  burst(4);
+});
+
+class Particle{
+  constructor(x,y,col,vx,vy,size,fade,grav){
+    this.x=x; this.y=y; this.vx=vx; this.vy=vy;
+    this.life=1; this.fade=fade ?? rand(.015,.03);
+    this.size=size ?? rand(1.3,2.6);
+    this.gravity=grav ?? .03;
+    this.col=col || palette();
+  }
+  step(){this.x+=this.vx; this.y+=this.vy; this.vy+=this.gravity; this.vx*=0.992; this.vy*=0.992; this.life-=this.fade;}
+  draw(){const [r,g,b]=this.col; ctx.globalCompositeOperation='lighter';
+    ctx.fillStyle=`rgba(${r},${g},${b},${Math.max(this.life,0)})`;
+    ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill();}
+}
+
+class Rocket{
+  constructor(){
+    this.x=rand(W*0.2,W*0.8); this.y=H+10; this.vx=rand(-1,1);
+    this.vy=mode==='comet'?rand(-13,-17):rand(-10,-14);
+    this.target=rand(H*0.15,H*0.45); this.col=palette(); this.exploded=false;
+  }
+  step(){
+    this.x+=this.vx; this.y+=this.vy; this.vy+=0.10;
+    const trailCount = mode==='comet'?2:(Math.random()<0.4?1:0);
+    for(let i=0;i<trailCount;i++){
+      particles.push(new Particle(this.x,this.y,this.col,rand(-0.6,0.6),rand(0.5,1.5),mode==='comet'?2.6:1.6,mode==='comet'?0.02:0.03,0.05));
+    }
+    if(this.vy>0 || this.y<this.target) this.explode();
+  }
+  explode(){
+    if(this.exploded) return; this.exploded=true;
+    const count = 120 + (Math.random()*60|0);
+    const ringR = rand(40,80);
+    for(let i=0;i<count;i++){
+      let a=rand(0,Math.PI*2), s, vx, vy;
+      if(mode==='ring'){
+        s=rand(2.2,3.5); vx=Math.cos(a)*s; vy=Math.sin(a)*s;
+        particles.push(new Particle(this.x+Math.cos(a)*ringR,this.y+Math.sin(a)*ringR,this.col,vx,vy,1.9,0.02,0.03)); continue;
+      }
+      if(mode==='peony' || mode==='comet'){
+        s=rand(1.8,5.8); vx=Math.cos(a)*s; vy=Math.sin(a)*s;
+        particles.push(new Particle(this.x,this.y,this.col,vx,vy)); continue;
+      }
+      if(mode==='fountain'){
+        a=rand(-Math.PI/2-.6,-Math.PI/2+.6); s=rand(1.2,4.2);
+        vx=Math.cos(a)*s; vy=Math.sin(a)*s;
+        particles.push(new Particle(this.x,this.y,this.col,vx,vy,1.6,0.02,0.06));
+      }
+    }
+  }
+  draw(){const [r,g,b]=this.col; ctx.globalCompositeOperation='lighter'; ctx.fillStyle=`rgba(${r},${g},${b},.9)`; ctx.fillRect(this.x-1,this.y-6,2,12);}
+}
+
+function loop(){
+  ctx.globalCompositeOperation='source-over';
+  ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.fillRect(0,0,W,H);
+  const rate = mode==='fountain'?0.01:(mode==='comet'?0.05:0.04);
+  if(Math.random()<rate) rockets.push(new Rocket());
+  if(mode==='fountain' && fountainEmitters.length){
+    fountainEmitters.forEach(em=>{
+      if(Math.random()<0.7){
+        const a=rand(-Math.PI/2-.45,-Math.PI/2+.45), s=rand(1.2,3.4);
+        particles.push(new Particle(em.x,window.innerHeight-10,palette(),Math.cos(a)*s,Math.sin(a)*s,rand(1.2,2.1),0.025,0.07));
+      }
+    });
+  }
+  rockets.forEach(r=>{r.step();r.draw();}); rockets=rockets.filter(r=>!r.exploded);
+  particles.forEach(p=>{p.step();p.draw();}); particles=particles.filter(p=>p.life>0 && p.y<H+60);
+  requestAnimationFrame(loop);
+}
+function burst(n=3){for(let i=0;i<n;i++) rockets.push(new Rocket());}
+loop();
+</script>
+
+</body>
+</html>
