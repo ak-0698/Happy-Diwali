@@ -93,6 +93,37 @@
   .diya{display:inline-block; width:16px; height:16px; margin:0 6px; border-bottom-left-radius:50% 70%; border-bottom-right-radius:50% 70%; background:radial-gradient(12px 10px at 50% 30%, #ffb703 0%, #fb8500 60%, #7a3e00 100%); position:relative; transform:translateY(3px); box-shadow:0 2px 10px rgba(255,183,3,.4)}
   .diya::after{content:""; position:absolute; top:-10px; left:50%; transform:translateX(-50%); width:8px; height:12px; border-radius:50%; background:radial-gradient(6px 8px at 50% 40%, #fff 0%, #ffe066 30%, #ff7b00 70%, transparent 100%); animation:flicker .9s infinite alternate}
   @keyframes flicker{from{transform:translateX(-50%) scale(1)} to{transform:translateX(-50%) scale(1.15)}}
+  * ---------- Responsiveness ---------- */
+  /* Phones (≤480px) */
+  @media (max-width: 480px){
+    :root{ --icon-size:72px; --nav-h:56px; }
+    .brand{ font-size:20px; letter-spacing:.4px; }
+    .tag{ display:none; }
+    .headline{ font-size: clamp(22px, 9.5vw, 40px); }
+    .sub, .quote{ font-size:14px; }
+    .crackers{ gap:16px; }
+    .gate .card{ width:min(92vw, 520px); padding:22px; }
+    .row{ flex-direction:column; }
+    .row input[type=text]{ width:100%; }
+    .row .btn{ width:100%; }
+  }
+  /* Small tablets (481–768px) */
+  @media (min-width: 481px) and (max-width: 768px){
+    :root{ --icon-size:84px; --nav-h:60px; }
+    .brand{ font-size:24px; }
+    .headline{ font-size: clamp(26px, 6.8vw, 52px); }
+    .crackers{ gap:20px; }
+  }
+  /* Large tablets & laptops (769–1199px) */
+  @media (min-width: 769px) and (max-width: 1199px){
+    :root{ --icon-size:90px; --nav-h:64px; }
+    .headline{ font-size: clamp(28px, 6vw, 64px); }
+  }
+  /* Big desktops (≥1200px) */
+  @media (min-width: 1200px){
+    :root{ --icon-size:110px; }
+    .crackers{ gap:32px; }
+  }
 
   ::-webkit-scrollbar{width:0;height:0}
 </style>
@@ -351,4 +382,5 @@ loop();
 
 </body>
 </html>
+
 
